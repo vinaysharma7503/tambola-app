@@ -11,15 +11,26 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+import Splash from './Src/Screens/Splash/Splash';
+import Login from './Src/Screens/Login/Login';
+import { Fragment, useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import RootStack from './Src/Navigations/RootStack';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
+  const [isSplashFinished, setSplashFinished] = useState(false);
 
   return (
-    <SafeAreaProvider>
+    <Fragment>
+      {!isSplashFinished ?<Splash onFinish={() => setSplashFinished(true)} />
+    :<SafeAreaProvider>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
+      <NavigationContainer>
+        <RootStack/>
+      </NavigationContainer>
+    </SafeAreaProvider>}
+    </Fragment>
   );
 }
 
