@@ -279,8 +279,6 @@ const styles = StyleSheet.create({
 
   dotActive: {
     width: 36,
-    backgroundColor: undefined, // we will render gradient via nextBtn rather than here
-    // draw gradient effect by overlay - for simplicity, use solid color:
     backgroundColor: '#8B5CF6',
   },
 
