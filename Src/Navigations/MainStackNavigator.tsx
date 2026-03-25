@@ -1,13 +1,23 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Dashboard from '../Screens/Dashboard/Dashboard';
+import DashboardStackNavigator from './DashboardStackNavigator';
+import Colors from '../Constants/Colors';
 
 
 const MainStack = createNativeStackNavigator();
 
+  const commonScreenOptions = {
+    headerShown: false,
+    headerTintColor: Colors.white,
+    headerStyle: { backgroundColor: Colors.primary },
+  };
+
 const MainStackNavigator = () => {
   return (
     <MainStack.Navigator>
-      <MainStack.Screen name="Dashboard" component={Dashboard} options={{ headerShown: false }}/>
+      <MainStack.Screen  key="Dashboard"
+        name="Dashboard"
+        component={DashboardStackNavigator}
+        options={commonScreenOptions}/>
     </MainStack.Navigator>
   )
 }

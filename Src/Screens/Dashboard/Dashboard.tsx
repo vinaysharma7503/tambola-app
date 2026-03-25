@@ -16,9 +16,7 @@ import Animated, {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface DashboardProps {
-  onCreateGame: () => void;
-  onJoinGame: () => void;
-  onProfile: () => void;
+  navigation?: any;
 }
 
 const recentGames = [
@@ -33,17 +31,25 @@ const stats = [
   { icon: 'people-outline', label: 'Friends', value: '156', colors: ['#60A5FA', '#22D3EE'] },
 ];
 
-export function Dashboard({
-  onCreateGame,
-  onJoinGame,
-  onProfile,
-}: DashboardProps) {
+export function Dashboard({ navigation }: DashboardProps) {
+  const handleCreateGame = () => {
+    navigation?.navigate('CreateGame');
+  };
+
+  const handleJoinGame = () => {
+    navigation?.navigate('JoinGame');
+  };
+
+  const handleProfile = () => {
+    navigation?.navigate('Profile');
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* HEADER */}
       <LinearGradient colors={['#7C3AED', '#EC4899']} style={styles.header}>
         <View style={styles.headerRow}>
-          <Pressable style={styles.avatar} onPress={onProfile}>
+          <Pressable style={styles.avatar} onPress={handleProfile}>
             <Ionicons name="person-outline" size={22} color="#fff" />
           </Pressable>
 
@@ -84,7 +90,7 @@ export function Dashboard({
             subtitle="Host a new game"
             colors={['#8B5CF6', '#EC4899']}
             icon="add"
-            onPress={onCreateGame}
+            onPress={handleCreateGame}
           />
 
           <ActionCard
@@ -92,7 +98,7 @@ export function Dashboard({
             subtitle="Enter game code"
             colors={['#F97316', '#FACC15']}
             icon="log-in-outline"
-            onPress={onJoinGame}
+            onPress={handleJoinGame}
           />
         </View>
 

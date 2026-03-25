@@ -16,13 +16,21 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Feather'; // optional - used for Phone/Mail/Lock/Chrome-like icons
 
-type LoginProps = {
+type VerifyProps = {
   navigation?: any;
+  route:any;
 };
 
+const OTP_LENGTH = 6;
 
-export default function Login({ navigation }: LoginProps) {
+export default function Verify({ navigation,route }: VerifyProps) {
+  console.log('route',route?.params?.phone)
   const [phoneNumber, setPhoneNumber] = useState<string>('');
+  const [otp, setOtp] = useState<string[]>(Array.from({ length: OTP_LENGTH }).map(() => ''));
+
+  // refs for OTP inputs so we can focus next
+  const otpRefs = useRef<Array<TextInput | null>>(Array(OTP_LENGTH).fill(null));
+
   // small entrance animations
   const containerOpacity = useRef(new Animated.Value(0)).current;
   const cardScale = useRef(new Animated.Value(0.95)).current;
@@ -44,21 +52,35 @@ export default function Login({ navigation }: LoginProps) {
     ]).start();
   }, [containerOpacity, cardScale]);
 
-  // handlers
-  const handleSendOTP = () => {
-    if (phoneNumber.length === 10) {
-      // focus first otp input after small delay (allow animation)
-      navigation.navigate('Verify',{phone:phoneNumber})
+    useEffect(() => {
+    setPhoneNumber(route?.params?.phone)
+  }, [route?.params?.phone])
+
+  const handleOTPChange = (index: number, value: string | undefined) => {
+    const text = (value ?? '').replace(/\D/g, '').slice(0, 1);
+    const newOTP = [...otp];
+    newOTP[index] = text;
+    setOtp(newOTP);
+
+    if (text && index < OTP_LENGTH - 1) {
+      // focus next
+      otpRefs.current[index + 1]?.focus();
+    }
+
+    // auto-submit when all digits entered
+    if (newOTP.every(d => d) && index === OTP_LENGTH - 1) {
+      setTimeout(() => {
+        navigation?.navigate('App',{screen:'Dashboard'});
+      }, 500);
     }
   };
 
-  const handleSocialLogin = (provider: string) => {
-    // mock/login flow
-    setTimeout(() => navigation?.navigate('Dashboard'), 500);
+  const handleChangeNumber = () => {
+    setOtp(Array.from({ length: OTP_LENGTH }).map(() => ''));
+    // optionally clear phone
+    // setPhoneNumber('');
+    navigation.goBack()
   };
-
-  // small UI helpers
-  const isSendEnabled = phoneNumber.length === 10;
 
   return (
     <LinearGradient
@@ -84,58 +106,53 @@ export default function Login({ navigation }: LoginProps) {
 
             {/* Card */}
             <View style={styles.card}>
-                  {/* Phone input */}
-                  <View style={styles.field}>
-                    <Text style={styles.label}>Mobile Number</Text>
-                    <View style={styles.inputRow}>
-                      <View style={styles.leftIcon}>
-                        <Icon name="phone" size={18} color="#9CA3AF" />
-                      </View>
-                      <TextInput
-                        style={styles.input}
-                        keyboardType="phone-pad"
-                        maxLength={10}
-                        placeholder="Enter 10-digit number"
-                        value={phoneNumber}
-                        onChangeText={(text) => setPhoneNumber(text.replace(/\D/g, '').slice(0, 10))}
-                        returnKeyType="done"
-                      />
+              <View style={styles.field}>
+                    <Text style={[styles.label, { textAlign: 'center' }]}>Enter OTP sent to</Text>
+                    <Text style={[styles.label, { textAlign: 'center', marginTop: 8, color: '#374151' }]}>
+                      +91 {phoneNumber}
+                    </Text>
+
+                    <View style={styles.otpRow}>
+                      {otp.map((digit, idx) => (
+                        <TextInput
+                          key={idx}
+                          ref={(el: any) => (otpRefs.current[idx] = el)}
+                          value={digit}
+                          onChangeText={(t) => handleOTPChange(idx, t)}
+                          keyboardType="number-pad"
+                          maxLength={1}
+                          style={styles.otpInput}
+                          textContentType="oneTimeCode"
+                          returnKeyType={idx === OTP_LENGTH - 1 ? 'done' : 'next'}
+                          onSubmitEditing={() => {
+                            if (idx < OTP_LENGTH - 1) {
+                              otpRefs.current[idx + 1]?.focus();
+                            } else {
+                              navigation?.navigate('Dashboard');
+                            }
+                          }}
+                          accessible
+                          accessibilityLabel={`OTP digit ${idx + 1}`}
+                        />
+                      ))}
                     </View>
+
+                    <TouchableOpacity style={styles.linkBtn} onPress={() => { /* implement resend */ }}>
+                      <Text style={styles.linkText}>Resend OTP</Text>
+                    </TouchableOpacity>
                   </View>
 
-                  {/* Send OTP */}
                   <TouchableOpacity
                     activeOpacity={0.9}
-                    onPress={handleSendOTP}
-                    disabled={!isSendEnabled}
-                    style={[
-                      styles.primaryButton,
-                      !isSendEnabled && styles.disabledButton,
-                    ]}
+                    onPress={() => navigation?.navigate('Dashboard')}
+                    style={[styles.primaryButton]}
                   >
-                    <Text style={styles.primaryButtonText}>Send OTP</Text>
+                    <Text style={styles.primaryButtonText}>Verify & Login</Text>
                   </TouchableOpacity>
 
-                  {/* Divider */}
-                  <View style={styles.dividerWrap}>
-                    <View style={styles.dividerLine} />
-                    <View style={styles.dividerTextWrap}>
-                      <Text style={styles.dividerText}>Or continue with</Text>
-                    </View>
-                  </View>
-
-                  {/* Social buttons */}
-                  <View style={styles.socialRow}>
-                    <TouchableOpacity style={styles.socialBtn} onPress={() => handleSocialLogin('google')}>
-                      <Icon name="globe" size={18} color="#374151" />
-                      <Text style={styles.socialText}>Google</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.socialBtn} onPress={() => handleSocialLogin('apple')}>
-                      <Text style={styles.socialEmoji}>🍎</Text>
-                      <Text style={styles.socialText}>Apple</Text>
-                    </TouchableOpacity>
-                  </View>
+                  <TouchableOpacity onPress={handleChangeNumber} style={{ marginTop: 12 }}>
+                    <Text style={styles.mutedLink}>Change Number</Text>
+                  </TouchableOpacity>
             </View>
 
             <Text style={styles.terms}>

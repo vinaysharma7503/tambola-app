@@ -23,13 +23,13 @@ function App() {
 
   return (
     <Fragment>
-      {!isSplashFinished ?<Splash onFinish={() => setSplashFinished(true)} />
-    :<SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <NavigationContainer>
-        <RootStack/>
-      </NavigationContainer>
-    </SafeAreaProvider>}
+      {!isSplashFinished ? <Splash onFinish={() => setSplashFinished(true)} />
+        : <SafeAreaProvider>
+          <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+          <NavigationContainer>
+            <RootStack />
+          </NavigationContainer>
+        </SafeAreaProvider>}
     </Fragment>
   );
 }
